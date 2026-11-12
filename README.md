@@ -179,20 +179,26 @@ is 0.74 against linked ears, but 0.16 in average reference (the common average r
 diffuse slow wave, so YASA's absolute amplitude criteria miss them: hence `DETECT_REFERENCE=auto`);
 no event is reported in a bad segment or a seizure. Staging tests check the contract only.
 
-**OpenNeuro ds003555** (raw BIDS, 3 h of sleep EEG per child, 1024 Hz, 10-20 with A1/A2, staged on
-C4-A1; eeg-prep output for it did not exist yet), in `data/work/ds003555/eeg-sleep/`:
+**OpenNeuro ds003555** (3 h of sleep EEG per child, 1024 Hz, 10-20 with A1/A2, staged on C4-A1),
+eeg-prep derivative (`data/work/ds003555/eeg-prep/eeg`, average reference, units fixed by
+eeg-prep), in `data/work/ds003555/eeg-sleep/`:
 
 | Recording | Age | TST (min) | SE (%) | N2 / N3 / REM (% TST) | Mean confidence (%) | Epochs ≥ 0.8 (%) | Spindles /min N2+N3, C3/C4/Cz | Slow waves /min N2+N3, frontal |
 |---|---|---|---|---|---|---|---|---|
-| sub-01 | 5.6 y | 168.0 | 93.3 | 33.6 / 44.3 / 20.8 | 64.0 | 22.5 | 0.04 / 0.18 / 0.10 | 21.4 |
-| sub-02 | 1.6 y | 47.5 | 26.4 | 45.3 / 3.2 / 47.4 | 60.8 | 15.3 | 0.17 / 0.13 / 0.30 | 10.7 |
-| sub-03 | 4.8 y | 138.0 | 76.7 | 14.9 / 60.5 / 6.9 | 68.2 | 35.0 | 0 / 0 / 0 | 24.5 |
+| sub-01 | 5.6 y | 167.0 | 92.8 | 40.4 / 42.8 / 15.6 | 62.3 | 18.9 | 0.04 / 0.19 / 0.13 | 26.2 |
+| sub-02 | 1.6 y | 46.0 | 25.6 | 56.5 / 0 / 37.0 | 56.7 | 8.1 | 0.66 / 0.27 / 0.97 | 2.1 |
+| sub-03 | 4.8 y | 141.0 | 78.3 | 14.5 / 59.9 / 12.4 | 71.7 | 42.5 | 0 / 0 / 0 | 32.9 |
+
+The same nights run on the raw BIDS files (`data/work/ds003555/eeg-sleep-rawbids/`, units from
+`channels.tsv`) have identical recording ids and epoch boundaries, and 89 % / 84 % / 87 % of
+epochs get the same stage (TST 168.0 / 47.5 / 138.0 min): eeg-prep's filtering, ICA and average
+reference change the staging only a little, since C4-A1 is the same difference in either reference.
 
 sub-01's hypnogram is plausible for the first 3 h of a child's night (N3 early, the first REM
 about an hour in, cycles). sub-02, a toddler, comes out mostly as wake in what is a recording of
 sleep: below YASA's training ages, and the app says so. Spindles are almost absent at YASA's adult
 default band (12-15 Hz): the spectrogram shows NREM sigma power around 9-11 Hz instead, as
-expected for slow spindles in young children. With `SPINDLE_FREQ=10,15` sub-01 has 3.1 / 3.8 / 2.3
+expected for slow spindles in young children. With `SPINDLE_FREQ=10,15` (raw-BIDS run) sub-01 has 3.1 / 3.8 / 2.3
 spindles per minute at C3 / C4 / Cz (sub-02 1.0-1.2, sub-03 none). Choose the band for the
 population, and say so.
 
@@ -233,7 +239,8 @@ Measured in Docker (linux/amd64 **emulated** on an M-series Mac), defaults, `--c
 
 | Run | Recording time | Wall time | CPU time | Peak memory (cgroup `memory.peak`, includes the page cache of the files read) | Peak RSS |
 |---|---|---|---|---|---|
-| ds003555, 3 recordings, 1024 Hz, 23 channels | 9 h | 55 s | 71 s | 1.84 GB | 1.04 GB |
+| ds003555 eeg-prep derivative, 3 recordings, 1024 Hz, 23 channels | 9 h | 57 s | 74 s | 1.85 GB | 1.04 GB |
+| ds003555 raw BIDS, the same 3 recordings | 9 h | 55 s | 71 s | 1.84 GB | 1.04 GB |
 | Siena sub-01 run-00 (raw BIDS), 256 Hz, 19 channels | 13.5 h | 82 s | 117 s | 1.89 GB | 1.01 GB |
 | Synthetic fixture (`make run`), Lambda-style (`--read-only --user 65534`) | 2.2 h | 41 s | | | 0.69 GB |
 | Siena, all 41 eeg-prep runs (35 staged, 6 skipped), 256 Hz, 19 channels | 128 h | 407 s | 600 s | 2.26 GB | 1.19 GB |
