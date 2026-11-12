@@ -1,0 +1,4 @@
+-r requirements.txt
+# tests: pytest; the fixture generator writes EDF with edfio
+pytest==9.2.0
+edfio==0.4.18

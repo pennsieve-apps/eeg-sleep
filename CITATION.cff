@@ -1,0 +1,567 @@
+cff-version: 1.2.0
+message: If you use this app, please cite it and the works it builds on, listed under references.
+type: software
+title: eeg-sleep
+abstract: Automatic sleep staging (30-s epochs with confidence), sleep statistics, sleep spindles and slow waves
+  from clinical scalp EEG with YASA, for the Pennsieve scalp EEG workflows. Stages on one central EEG derivation
+  (EEG only), detects spindles and slow waves in N2/N3 on every EEG channel with bad segments and seizures left
+  out, and writes the hypnogram that eeg-spikes uses for spike rates per sleep stage.
+authors:
+- name: Pennsieve (University of Pennsylvania)
+contact:
+- given-names: Joost
+  family-names: Wagenaar
+  orcid: https://orcid.org/0009-0004-5925-5451
+  affiliation: University of Pennsylvania
+repository-code: https://github.com/pennsieve-apps/eeg-sleep
+license: Apache-2.0
+keywords:
+- eeg
+- scalp-eeg
+- electrophysiology
+- epilepsy
+- neurology
+- sleep
+- sleep-staging
+- sleep-spindles
+- slow-waves
+- yasa
+references:
+- type: article
+  title: An open-source, high-performance tool for automated sleep staging
+  authors:
+  - family-names: Vallat
+    given-names: Raphael
+  - family-names: Walker
+    given-names: Matthew P
+  year: 2021
+  doi: 10.7554/eLife.70092
+  journal: eLife
+  volume: '10'
+  start: e70092
+  identifiers:
+  - type: other
+    value: '34648426'
+    description: PubMed ID
+- type: software
+  title: 'YASA: Yet Another Spindle Algorithm'
+  authors:
+  - family-names: Vallat
+    given-names: Raphael
+  repository-code: https://github.com/raphaelvallat/yasa
+  url: https://github.com/raphaelvallat/yasa
+  version: 0.8.1
+  license: BSD-3-Clause
+- type: software
+  title: 'yasa_classifier: training of YASA''s sleep-staging classifiers'
+  authors:
+  - family-names: Vallat
+    given-names: Raphael
+  repository-code: https://github.com/raphaelvallat/yasa_classifier
+  url: https://github.com/raphaelvallat/yasa_classifier
+  license: BSD-3-Clause
+- type: article
+  title: 'Scaling Up Scientific Discovery in Sleep Medicine: The National Sleep Research Resource'
+  authors:
+  - family-names: Dean
+    given-names: Dennis A.
+  - family-names: Goldberger
+    given-names: Ary L.
+  - family-names: Mueller
+    given-names: Remo
+  - family-names: Kim
+    given-names: Matthew
+  - family-names: Rueschman
+    given-names: Michael
+  - family-names: Mobley
+    given-names: Daniel
+  - family-names: Sahoo
+    given-names: Satya S.
+  - family-names: Jayapandian
+    given-names: Catherine P.
+  - family-names: Cui
+    given-names: Licong
+  - family-names: Morrical
+    given-names: Michael G.
+  - family-names: Surovec
+    given-names: Susan
+  - family-names: Zhang
+    given-names: Guo-Qiang
+  - family-names: Redline
+    given-names: Susan
+  year: 2016
+  doi: 10.5665/sleep.5774
+  journal: Sleep
+  volume: '39'
+  issue: '5'
+  start: '1151'
+  end: '1164'
+  identifiers:
+  - type: other
+    value: '27070134'
+    description: PubMed ID
+- type: article
+  title: 'The National Sleep Research Resource: towards a sleep data commons'
+  authors:
+  - family-names: Zhang
+    given-names: Guo-Qiang
+  - family-names: Cui
+    given-names: Licong
+  - family-names: Mueller
+    given-names: Remo
+  - family-names: Tao
+    given-names: Shiqiang
+  - family-names: Kim
+    given-names: Matthew
+  - family-names: Rueschman
+    given-names: Michael
+  - family-names: Mariani
+    given-names: Sara
+  - family-names: Mobley
+    given-names: Daniel
+  - family-names: Redline
+    given-names: Susan
+  year: 2018
+  doi: 10.1093/jamia/ocy064
+  journal: Journal of the American Medical Informatics Association
+  volume: '25'
+  issue: '10'
+  start: '1351'
+  end: '1358'
+  identifiers:
+  - type: other
+    value: '29860441'
+    description: PubMed ID
+- type: conference-paper
+  title: 'LightGBM: A Highly Efficient Gradient Boosting Decision Tree'
+  authors:
+  - family-names: Ke
+    given-names: Guolin
+  - family-names: Meng
+    given-names: Qi
+  - family-names: Finley
+    given-names: Thomas
+  - family-names: Wang
+    given-names: Taifeng
+  - family-names: Chen
+    given-names: Wei
+  - family-names: Ma
+    given-names: Weidong
+  - family-names: Ye
+    given-names: Qiwei
+  - family-names: Liu
+    given-names: Tie-Yan
+  year: 2017
+  collection-title: Advances in Neural Information Processing Systems
+  volume: 30
+  start: '3149'
+  end: '3157'
+  url: https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html
+- type: software
+  title: LightGBM
+  authors:
+  - name: Microsoft Corporation
+  - name: The LightGBM developers
+  repository-code: https://github.com/lightgbm-org/LightGBM
+  url: https://github.com/lightgbm-org/LightGBM
+  version: 4.7.0
+  license: MIT
+- type: software
+  title: 'AntroPy: entropy and complexity of time-series in Python'
+  authors:
+  - family-names: Vallat
+    given-names: Raphael
+  repository-code: https://github.com/raphaelvallat/antropy
+  url: https://github.com/raphaelvallat/antropy
+  version: 0.2.3
+  license: BSD-3-Clause
+- type: article
+  title: MEG and EEG data analysis with MNE-Python
+  authors:
+  - family-names: Gramfort
+    given-names: Alexandre
+  - family-names: Luessi
+    given-names: Martin
+  - family-names: Larson
+    given-names: Eric
+  - family-names: Engemann
+    given-names: Denis A.
+  - family-names: Strohmeier
+    given-names: Daniel
+  - family-names: Brodbeck
+    given-names: Christian
+  - family-names: Goj
+    given-names: Roman
+  - family-names: Jas
+    given-names: Mainak
+  - family-names: Brooks
+    given-names: Teon
+  - family-names: Parkkonen
+    given-names: Lauri
+  - family-names: Hämäläinen
+    given-names: Matti
+  year: 2013
+  doi: 10.3389/fnins.2013.00267
+  journal: Frontiers in Neuroscience
+  volume: '7'
+  identifiers:
+  - type: other
+    value: '24431986'
+    description: PubMed ID
+  start: '267'
+- type: software
+  title: MNE-Python
+  authors:
+  - name: MNE-Python authors
+  repository-code: https://github.com/mne-tools/mne-python
+  url: https://github.com/mne-tools/mne-python
+  version: 1.13.2
+  license: BSD-3-Clause
+- type: article
+  title: 'SciPy 1.0: fundamental algorithms for scientific computing in Python'
+  authors:
+  - family-names: Virtanen
+    given-names: Pauli
+  - family-names: Gommers
+    given-names: Ralf
+  - family-names: Oliphant
+    given-names: Travis E.
+  - family-names: Haberland
+    given-names: Matt
+  - family-names: Reddy
+    given-names: Tyler
+  - family-names: Cournapeau
+    given-names: David
+  - family-names: Burovski
+    given-names: Evgeni
+  - family-names: Peterson
+    given-names: Pearu
+  - family-names: Weckesser
+    given-names: Warren
+  - family-names: Bright
+    given-names: Jonathan
+  - family-names: van der Walt
+    given-names: Stéfan J.
+  - family-names: Brett
+    given-names: Matthew
+  - family-names: Wilson
+    given-names: Joshua
+  - family-names: Millman
+    given-names: K. Jarrod
+  - family-names: Mayorov
+    given-names: Nikolay
+  - family-names: Nelson
+    given-names: Andrew R. J.
+  - family-names: Jones
+    given-names: Eric
+  - family-names: Kern
+    given-names: Robert
+  - family-names: Larson
+    given-names: Eric
+  - family-names: Carey
+    given-names: C J
+  - family-names: Polat
+    given-names: İlhan
+  - family-names: Feng
+    given-names: Yu
+  - family-names: Moore
+    given-names: Eric W.
+  - family-names: VanderPlas
+    given-names: Jake
+  - family-names: Laxalde
+    given-names: Denis
+  - family-names: Perktold
+    given-names: Josef
+  - family-names: Cimrman
+    given-names: Robert
+  - family-names: Henriksen
+    given-names: Ian
+  - family-names: Quintero
+    given-names: E. A.
+  - family-names: Harris
+    given-names: Charles R.
+  - family-names: Archibald
+    given-names: Anne M.
+  - family-names: Ribeiro
+    given-names: Antônio H.
+  - family-names: Pedregosa
+    given-names: Fabian
+  - family-names: van Mulbregt
+    given-names: Paul
+  - name: SciPy 1.0 Contributors
+  - family-names: Vijaykumar
+    given-names: Aditya
+  - family-names: Bardelli
+    given-names: Alessandro Pietro
+  - family-names: Rothberg
+    given-names: Alex
+  - family-names: Hilboll
+    given-names: Andreas
+  - family-names: Kloeckner
+    given-names: Andreas
+  - family-names: Scopatz
+    given-names: Anthony
+  - family-names: Lee
+    given-names: Antony
+  - family-names: Rokem
+    given-names: Ariel
+  - family-names: Woods
+    given-names: C. Nathan
+  - family-names: Fulton
+    given-names: Chad
+  - family-names: Masson
+    given-names: Charles
+  - family-names: Häggström
+    given-names: Christian
+  - family-names: Fitzgerald
+    given-names: Clark
+  - family-names: Nicholson
+    given-names: David A.
+  - family-names: Hagen
+    given-names: David R.
+  - family-names: Pasechnik
+    given-names: Dmitrii V.
+  - family-names: Olivetti
+    given-names: Emanuele
+  - family-names: Martin
+    given-names: Eric
+  - family-names: Wieser
+    given-names: Eric
+  - family-names: Silva
+    given-names: Fabrice
+  - family-names: Lenders
+    given-names: Felix
+  - family-names: Wilhelm
+    given-names: Florian
+  - family-names: Young
+    given-names: G.
+  - family-names: Price
+    given-names: Gavin A.
+  - family-names: Ingold
+    given-names: Gert-Ludwig
+  - family-names: Allen
+    given-names: Gregory E.
+  - family-names: Lee
+    given-names: Gregory R.
+  - family-names: Audren
+    given-names: Hervé
+  - family-names: Probst
+    given-names: Irvin
+  - family-names: Dietrich
+    given-names: Jörg P.
+  - family-names: Silterra
+    given-names: Jacob
+  - family-names: Webber
+    given-names: James T
+  - family-names: Slavič
+    given-names: Janko
+  - family-names: Nothman
+    given-names: Joel
+  - family-names: Buchner
+    given-names: Johannes
+  - family-names: Kulick
+    given-names: Johannes
+  - family-names: Schönberger
+    given-names: Johannes L.
+  - family-names: de Miranda Cardoso
+    given-names: José Vinícius
+  - family-names: Reimer
+    given-names: Joscha
+  - family-names: Harrington
+    given-names: Joseph
+  - family-names: Rodríguez
+    given-names: Juan Luis Cano
+  - family-names: Nunez-Iglesias
+    given-names: Juan
+  - family-names: Kuczynski
+    given-names: Justin
+  - family-names: Tritz
+    given-names: Kevin
+  - family-names: Thoma
+    given-names: Martin
+  - family-names: Newville
+    given-names: Matthew
+  - family-names: Kümmerer
+    given-names: Matthias
+  - family-names: Bolingbroke
+    given-names: Maximilian
+  - family-names: Tartre
+    given-names: Michael
+  - family-names: Pak
+    given-names: Mikhail
+  - family-names: Smith
+    given-names: Nathaniel J.
+  - family-names: Nowaczyk
+    given-names: Nikolai
+  - family-names: Shebanov
+    given-names: Nikolay
+  - family-names: Pavlyk
+    given-names: Oleksandr
+  - family-names: Brodtkorb
+    given-names: Per A.
+  - family-names: Lee
+    given-names: Perry
+  - family-names: McGibbon
+    given-names: Robert T.
+  - family-names: Feldbauer
+    given-names: Roman
+  - family-names: Lewis
+    given-names: Sam
+  - family-names: Tygier
+    given-names: Sam
+  - family-names: Sievert
+    given-names: Scott
+  - family-names: Vigna
+    given-names: Sebastiano
+  - family-names: Peterson
+    given-names: Stefan
+  - family-names: More
+    given-names: Surhud
+  - family-names: Pudlik
+    given-names: Tadeusz
+  - family-names: Oshima
+    given-names: Takuya
+  - family-names: Pingel
+    given-names: Thomas J.
+  - family-names: Robitaille
+    given-names: Thomas P.
+  - family-names: Spura
+    given-names: Thomas
+  - family-names: Jones
+    given-names: Thouis R.
+  - family-names: Cera
+    given-names: Tim
+  - family-names: Leslie
+    given-names: Tim
+  - family-names: Zito
+    given-names: Tiziano
+  - family-names: Krauss
+    given-names: Tom
+  - family-names: Upadhyay
+    given-names: Utkarsh
+  - family-names: Halchenko
+    given-names: Yaroslav O.
+  - family-names: Vázquez-Baeza
+    given-names: Yoshiki
+  year: 2020
+  doi: 10.1038/s41592-019-0686-2
+  journal: Nature Methods
+  volume: '17'
+  issue: '3'
+  start: '261'
+  end: '272'
+  identifiers:
+  - type: other
+    value: '32015543'
+    description: PubMed ID
+- type: data
+  title: Dataset of EEG recordings of pediatric patients with epilepsy based on the 10-20 system
+  authors:
+  - given-names: Dorottya
+    family-names: Cserpan
+  - given-names: Ece
+    family-names: Boran
+  - given-names: Richard
+    family-names: Rosch
+  - given-names: San Pietro
+    family-names: Lo Biundo
+  - given-names: Georgia
+    family-names: Ramantani
+  - given-names: Johannes
+    family-names: Sarnthein
+  year: 2021
+  doi: 10.18112/openneuro.ds003555.v1.0.1
+  publisher:
+    name: OpenNeuro
+- type: article
+  title: Scalp high-frequency oscillation rates are higher in younger children
+  authors:
+  - family-names: Cserpan
+    given-names: Dorottya
+  - family-names: Boran
+    given-names: Ece
+  - family-names: Lo Biundo
+    given-names: Santo Pietro
+  - family-names: Rosch
+    given-names: Richard
+  - family-names: Sarnthein
+    given-names: Johannes
+  - family-names: Ramantani
+    given-names: Georgia
+  year: 2021
+  doi: 10.1093/braincomms/fcab052
+  journal: Brain Communications
+  volume: '3'
+  issue: '2'
+  start: fcab052
+  identifiers:
+  - type: other
+    value: '33870193'
+    description: PubMed ID
+- type: data
+  title: BIDS Siena Scalp EEG Database
+  authors:
+  - family-names: Dan
+    given-names: Jonathan
+  - family-names: Detti
+    given-names: Paolo
+  year: 2024
+  doi: 10.5281/zenodo.10640762
+  publisher:
+    name: EPFL
+- type: data
+  title: Siena Scalp EEG Database
+  authors:
+  - family-names: Detti
+    given-names: Paolo
+  year: 2020
+  doi: 10.13026/5d4a-j060
+  publisher:
+    name: PhysioNet
+- type: article
+  title: 'EEG Synchronization Analysis for Seizure Prediction: A Study on Data of Noninvasive Recordings'
+  authors:
+  - family-names: Detti
+    given-names: Paolo
+  - family-names: Vatti
+    given-names: Giampaolo
+  - family-names: Zabalo Manrique de Lara
+    given-names: Garazi
+  year: 2020
+  doi: 10.3390/pr8070846
+  journal: Processes
+  volume: '8'
+  issue: '7'
+  start: '846'
+- type: article
+  title: PhysioBank, PhysioToolkit, and PhysioNet
+  authors:
+  - family-names: Goldberger
+    given-names: Ary L.
+  - family-names: Amaral
+    given-names: Luis A. N.
+  - family-names: Glass
+    given-names: Leon
+  - family-names: Hausdorff
+    given-names: Jeffrey M.
+  - family-names: Ivanov
+    given-names: Plamen Ch.
+  - family-names: Mark
+    given-names: Roger G.
+  - family-names: Mietus
+    given-names: Joseph E.
+  - family-names: Moody
+    given-names: George B.
+  - family-names: Peng
+    given-names: Chung-Kang
+  - family-names: Stanley
+    given-names: H. Eugene
+  year: 2000
+  doi: 10.1161/01.CIR.101.23.e215
+  journal: Circulation
+  volume: '101'
+  issue: '23'
+  identifiers:
+  - type: other
+    value: '10851218'
+    description: PubMed ID

@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://schemas.pennsieve.io/app-manifest/v1.json
+schemaVersion: "1.0"
+application:
+  name: Scalp EEG Sleep
+  description: >-
+    Automatic sleep staging (30-s epochs, W/N1/N2/N3/REM with the classifier's confidence), sleep
+    statistics, sleep spindles and slow waves from clinical scalp EEG with YASA (Vallat & Walker
+    2021). Stages on one central EEG derivation (C4-M1 or C3-M2 when ear or mastoid electrodes are
+    present, else the best central channel or bipolar pair), EEG only; detects spindles and slow
+    waves in N2/N3 on every EEG channel, leaving bad segments and seizures out. Writes the
+    hypnogram that eeg-spikes uses for spike rates per sleep stage. Research output to be reviewed.
+  type: processor
+  tags:
+    - eeg
+    - scalp-eeg
+    - electrophysiology
+    - epilepsy
+    - neurology
+    - neuroscience
+    - sleep
+    - sleep-staging
+    - biomarkers
+runtime:
+  # The staging channel is streamed at 100 Hz; spindles and slow waves run in 2-h windows of
+  # all EEG channels at 100 Hz, channels in parallel. Measured (amd64 emulated, 2 vCPU / 3 GiB):
+  # 13.5 h Siena recording 82 s wall, 117 CPU-s, RSS 1.0 GB, cgroup peak 1.9 GB with page cache;
+  # three 3-h 1024 Hz ds003555 nights 70 s. See README "Runtime".
+  cpu: 2048
+  memory: 4096
+  computeTypes:
+    - standard
+  timeoutSeconds: 7200
+parameters:
+  - name: STAGING_CHANNEL
+    type: string
+    label: Staging channel
+    description: >-
+      auto: C4 minus the left mastoid/ear (C4-M1, C4-A1), else C3-M2 / C3-A2, else C4, C3 or Cz
+      in the recording's reference; on bipolar-only recordings F4-P4 (F4-C4 + C4-P4), F3-P3,
+      Fz-Pz, then single central pairs. Or a channel name (C4, C4-P4) or a difference of two
+      channels (C4-A1).
+    defaultValue: auto
+  - name: USE_DEMOGRAPHICS
+    type: boolean
+    label: Use age and sex
+    description: >-
+      Use YASA's classifier that also takes age and sex (from recordings.csv or participants.tsv)
+      when both are known. Off by default: the app reports YASA's accuracy for EEG only.
+    defaultValue: false
+  - name: MIN_SLEEP_MINUTES
+    type: number
+    label: Minimum recording length (min)
+    description: >-
+      Recordings shorter than this are not staged (status "skipped" in provenance.json): a routine
+      EEG has too little sleep, and YASA smooths its features over 7.5 min.
+    defaultValue: 60
+    min: 10
+  - name: DETECT_CHANNELS
+    type: string
+    label: Spindle and slow-wave channels
+    description: >-
+      all: every good EEG channel (needed for the density head map); frontal-central: frontal
+      and central channels only.
+    defaultValue: all
+    validValues: [all, frontal-central]
+  - name: DETECT_REFERENCE
+    type: string
+    label: Reference for detection
+    description: >-
+      auto: when both ear or mastoid electrodes (A1/A2, M1/M2) are in a referential recording,
+      detect against their mean (linked ears), as sleep EEG is usually read; else as recorded.
+      as-recorded: always the recording's own reference (average reference attenuates slow waves).
+    defaultValue: auto
+    validValues: [auto, as-recorded]
+  - name: SPINDLE_FREQ
+    type: string
+    label: Spindle band (Hz)
+    description: >-
+      low,high of the sigma band (YASA's default 12,15). Young children's spindles are slower:
+      consider 10,15 under about 6 years.
+    defaultValue: "12,15"
+  - name: SW_AMP_PTP
+    type: string
+    label: Slow-wave peak-to-peak amplitude (µV)
+    description: >-
+      min,max peak-to-peak amplitude of a slow wave (YASA's default 75,350, set for adults
+      referred to the mastoids; children's slow waves can be larger).
+    defaultValue: "75,350"
+  - name: EXCLUDE_SEIZURE
+    type: boolean
+    label: Leave seizures out
+    description: >-
+      Leave annotated seizures (with SEIZURE_MARGIN_S on both sides) out of spindle and slow-wave
+      detection. Bad segments and artifacts are always left out. Staging covers every epoch.
+    defaultValue: true
+  - name: SEIZURE_MARGIN_S
+    type: number
+    label: Seizure margin (s)
+    description: Seconds left out before each seizure's onset and after its end.
+    defaultValue: 60
+    min: 0
+  - name: WINDOW_S
+    type: number
+    label: Detection window (s)
+    description: >-
+      Spindles and slow waves are detected in windows of this length (30 s of context on each
+      side); YASA's spindle RMS threshold is computed per window over its N2/N3 time.
+    defaultValue: 7200
+    min: 600
+  - name: THREADS
+    type: integer
+    label: Parallel workers
+    description: >-
+      Channels analysed in parallel; 0 = one per vCPU the container is given (its cgroup CPU
+      quota), fewer when ~450 MB per worker would not fit its memory.
+    defaultValue: 0
+    min: 0
+  - name: LABEL
+    type: string
+    label: Output subfolder
+    description: When set, outputs go to OUTPUT_DIR/eeg-sleep/<LABEL>/ (for a workflow that runs this step twice).
+    defaultValue: ""
+inputs:
+  - name: eeg
+    description: >-
+      The BIDS-EEG derivative of eeg-prep (recordings.csv, *_desc-preproc_eeg.edf with
+      channels.tsv and events.tsv), or any BIDS-EEG dataset, or plain EDF/BDF/BrainVision/FIF/
+      EEGLAB files, referential or bipolar-only. Folders and symlinks are followed.
+    mediaTypes:
+      - application/edf
+      - text/csv
+      - text/tab-separated-values
+      - application/json
+    placement: root
+    required: true
+outputs:
+  - name: sleep
+    description: >-
+      eeg-sleep/: hypnogram.csv (recording_id, epoch, start_s, duration_s, stage, confidence,
+      channel), sleep_stats.csv, spindles.csv, slow_waves.csv, features.csv, figures/ (hypnogram,
+      spectrogram, spindle and slow-wave density map per recording), summary.json, provenance.json.
+    mediaTypes:
+      - text/csv
+      - image/png
+      - application/json
+
+# How a release is tested before it is made public: the inputs a review run uses.
+# See app-deploy-service docs/app-manifest-review.md.
+review:
+  version: 1
+  generate:
+    command: python -m tests.make_fixture "$REVIEW_INPUT_DIR"
+    root: eeg
