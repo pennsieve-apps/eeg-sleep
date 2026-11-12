@@ -79,7 +79,7 @@ def test_tables_headers_provenance_and_summary(default_run):
     s = json.loads((default_run / "summary.json").read_text())
     assert set(s) == {"app", "version", "recordings", "figures", "tables", "warnings"}
     assert set(s["recordings"]) == {REC1, REC2}
-    assert isinstance(s["recordings"][REC1]["TST_min"], float)
+    assert isinstance(s["recordings"][REC1]["TST_min"], float) and s["recordings"][REC1]["epochs"] == 130
     kinds = [f["path"].rsplit("_", 1)[1] for f in s["figures"]]
     assert kinds == ["hypnogram.png", "spectrogram.png", "density.png"] * 2
     for f in s["figures"]:

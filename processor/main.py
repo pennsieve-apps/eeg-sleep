@@ -447,7 +447,9 @@ def process_recording(rec: E.Recording, params: dict, parallel, fig_dir: Path) -
         "sw_density_frontal": dens(sw_rows, ("frontal",)),
         "nrem_minutes_analysed": round(max(minutes.values()), 2) if minutes else 0.0,
     }
-    head = {k: (round(float(v), 3) if v is not None and np.isfinite(float(v)) else None) for k, v in head.items()}
+    head = {k: (None if v is None or not np.isfinite(float(v)) else
+                int(v) if k in ("epochs", "n_spindles", "n_slow_waves") else round(float(v), 3))
+            for k, v in head.items()}
     summary = {
         "status": "ok", "sfreq": fs, "duration_s": round(duration, 3), "montage": montage,
         "staging_channel": chosen.label, "staging_derivation": chosen.how, "classifier": st.classifier,

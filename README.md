@@ -197,7 +197,25 @@ spindles per minute at C3 / C4 / Cz (sub-02 1.0-1.2, sub-03 none). Choose the ba
 population, and say so.
 
 **Siena Scalp EEG** (adults in video-EEG monitoring, average reference, no ear electrodes, staged
-on C4 in average reference): SIENA_RESULTS
+on C4 in average reference): the eeg-prep derivative of all 41 runs (`data/work/siena/eeg-prep/eeg`), in
+`data/work/siena/eeg-sleep/`. 35 runs were staged and 6 shorter than an hour were skipped; none
+failed. Mean staging confidence per run: median 69 % (55-82 %). The three whole nights:
+
+| Recording | Hours | TST (min) | SE (%) | N2 / N3 / REM (% TST) | Mean confidence (%) | Spindles /min N2+N3, central | Slow waves /min N2+N3, frontal |
+|---|---|---|---|---|---|---|---|
+| sub-01 run-00 | 13.5 | 376.0 | 46.5 | 52.8 / 15.2 / 15.2 | 76.1 | 0.63 | 0.01 |
+| sub-03 run-00 | 13.0 | 381.0 | 49.0 | 67.5 / 5.1 / 14.0 | 81.7 | 0.43 | 0.40 |
+| sub-14 run-02 | 11.7 | 313.0 | 44.7 | 83.9 / 0 / 12.5 | 78.0 | 6.29 | 0.02 |
+
+The nights have a plausible shape (wake in the evening, sleep from around 23:00-00:00, NREM-REM
+cycles, waking in the morning; SE is low because the recordings start hours before sleep and there
+are no lights-off events), but N3 is scarce or absent (none at all in sub-14). But the Siena source was **high-pass filtered at 1.59 Hz** before export (its
+sidecar's `SoftwareFilters`; the app warns on every run): slow waves are nearly absent (≤ 3 per
+minute of N2+N3 on every run, against ~21 in the unfiltered ds003555 children) and N3 is likely
+under-scored. Without ear electrodes the staging falls back to C4 in average reference, and the
+derivation matters: on PN06's run-01 (raw BIDS), TST was 88 min on C4, 66 min on C3 and 49 min on
+C4-O1. Shorter daytime runs give low TST with mostly N2 and REM at lower confidence, as expected
+for naps in a monitoring unit or misclassified drowsy wake; review them against the EEG.
 
 **CHB-MIT** chb01_03 (one hour, bipolar-only, staged on F4-P4): 120 epochs, TST 51 min, mean
 confidence 75.5 %; the repeated `T8-P8` and reversed `P7-T7` channels are left out.
@@ -216,9 +234,9 @@ Measured in Docker (linux/amd64 **emulated** on an M-series Mac), defaults, `--c
 | Run | Recording time | Wall time | CPU time | Peak memory (cgroup `memory.peak`, includes the page cache of the files read) | Peak RSS |
 |---|---|---|---|---|---|
 | ds003555, 3 recordings, 1024 Hz, 23 channels | 9 h | 55 s | 71 s | 1.84 GB | 1.04 GB |
-| Siena sub-01 run-00, 256 Hz, 19 channels | 13.5 h | 82 s | 117 s | 1.89 GB | 1.01 GB |
+| Siena sub-01 run-00 (raw BIDS), 256 Hz, 19 channels | 13.5 h | 82 s | 117 s | 1.89 GB | 1.01 GB |
 | Synthetic fixture (`make run`), Lambda-style (`--read-only --user 65534`) | 2.2 h | 41 s | | | 0.69 GB |
-SIENA_RUNTIME
+| Siena, all 41 eeg-prep runs (35 staged, 6 skipped), 256 Hz, 19 channels | 128 h | 407 s | 600 s | 2.26 GB | 1.19 GB |
 
 About 10 s of every run is importing YASA and compiling AntroPy's numba functions under
 emulation. Time grows with recording length × channels × sampling rate (reading and resampling)
