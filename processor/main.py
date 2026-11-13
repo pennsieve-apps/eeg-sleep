@@ -58,13 +58,10 @@ def _early_env() -> None:
     os.environ.setdefault("MNE_DONTWRITE_HOME", "true")
     os.environ.setdefault("MNE_DATA", os.path.join(tmp, "mne_data"))
     os.environ.setdefault("MNE_USE_CUDA", "false")
-    try:
-        req = int((os.environ.get("THREADS") or "0").strip())
-    except ValueError:
-        req = 0
-    n, _ = R.resolve_workers(max(0, req), WORKER_MB, MAIN_MB)
+    # Parallelism is THREADS worker processes (one channel each); every process keeps its native
+    # thread pools (OpenMP for LightGBM, BLAS, numba) at one thread, so n workers use n CPUs.
     for var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMBA_NUM_THREADS"):
-        os.environ[var] = str(n)
+        os.environ[var] = "1"
 
 
 _early_env()
@@ -101,6 +98,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PAD_S = 30.0            # context on each side of a detection window
 CITATIONS = ["10.7554/eLife.70092", "10.5665/sleep.5774", "10.1093/jamia/ocy064", "10.3389/fnins.2013.00267",
              "10.1038/s41592-019-0686-2"]
+NOTICE = ("Automatic sleep staging from EEG only (one central derivation, no EOG or EMG), with YASA's classifiers "
+          "trained on polysomnography; not validated against expert sleep scoring on these recordings, and "
+          "unreliable in children under 5 years. Review the hypnogram against the EEG before using stages, "
+          "spindle or slow-wave numbers.")
 HEADERS = {
     "hypnogram.csv": ["recording_id", "epoch", "start_s", "duration_s", "stage", "confidence", "channel"],
     "sleep_stats.csv": ["recording_id", "metric", "value"],
@@ -255,7 +256,7 @@ def sleep_stats(stages: list[str], conf: np.ndarray, e0: int, e1: int) -> dict[s
 def detection_channels(good: list[E.Channel], which: str) -> list[E.Channel]:
     out = [c for c in good if c.contacts and not set(c.contacts) & {"A1", "A2", "M1", "M2"}]
     if which == "frontal-central":
-        out = [c for c in out if E.region(c.contacts) in ("frontal", "central", "frontal+central", "central+frontal")]
+        out = [c for c in out if E.in_region(c.contacts, ("frontal", "central"))]
     return out
 
 
@@ -365,7 +366,7 @@ def process_recording(rec: E.Recording, params: dict, parallel, fig_dir: Path) -
             break
         tw = time.monotonic()
         xw = Z.stream_100hz(raw, derivs, r0, r1)
-        i0 = int(round(r0 * Z.SF))
+        i0 = Z.origin_100hz(fs, r0)
         n = xw.shape[1]
         full = Z.sample_mask(st.stages, i0 + n, excluded)
         hyp = full[i0:i0 + n]
@@ -431,7 +432,7 @@ def process_recording(rec: E.Recording, params: dict, parallel, fig_dir: Path) -
         log.warning("%s: figure failed: %s\n%s", rid, exc, traceback.format_exc())
 
     def dens(rows, region_names):
-        ch = [d.label for d, c in zip(derivs, det) if E.region(c.contacts) in region_names and minutes[d.label] > 0]
+        ch = [d.label for d, c in zip(derivs, det) if E.in_region(c.contacts, region_names) and minutes[d.label] > 0]
         if not ch:
             return None
         return float(np.mean([sum(1 for r in rows if r["channel"] == x) / minutes[x] for x in ch]))
@@ -569,8 +570,9 @@ def main() -> int:
                 warnings_.append(f"{rec.recording_id}: mean staging confidence {h['confidence_mean_pct']:.0f}% "
                                  f"(< 70%): review the hypnogram")
             if s["montage"] != "bipolar-longitudinal" and not s["staging_channel"].endswith(("M1", "M2", "A1", "A2")):
-                warnings_.append(f"{rec.recording_id}: staged on {s['staging_channel']}, not on a central-mastoid "
-                                 f"derivation; YASA's accuracy is reported for C4-M1-like channels")
+                warnings_.append(f"{rec.recording_id}: staged on {s['staging_channel']}, not on a central electrode "
+                                 f"referred to a mastoid or ear; YASA was trained on C4-M1 or C4-Fpz, so its "
+                                 f"reported accuracy does not carry over")
             if s["montage"] == "bipolar-longitudinal":
                 warnings_.append(f"{rec.recording_id}: bipolar-only recording, staged on {s['staging_channel']}; "
                                  f"YASA was trained on referential central derivations (C4-M1, C4-Fpz)")
@@ -607,7 +609,7 @@ def main() -> int:
                                             "amplitude and spindle frequency."},
     ]
     finished = datetime.now(timezone.utc)
-    summary = {"app": APP, "version": version_of(REPO_ROOT), "recordings": heads, "figures": figures,
+    summary = {"app": APP, "version": version_of(REPO_ROOT), "notice": NOTICE, "recordings": heads, "figures": figures,
                "tables": tables, "warnings": warnings_}
     prov = {
         "app": APP, "version": version_of(REPO_ROOT), "variant": None, "tools": tool_versions(),

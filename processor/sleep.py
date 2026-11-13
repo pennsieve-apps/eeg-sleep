@@ -61,6 +61,14 @@ def ratio(fs: float) -> tuple[int, int]:
     return fr.numerator, fr.denominator
 
 
+def origin_100hz(fs: float, t0: float) -> int:
+    """Index, on the 100 Hz grid of the whole recording, of the first sample stream_100hz returns
+    for a window starting at t0 s: the window start is snapped down to a multiple of the polyphase
+    `down` factor, so event times must be offset by this, not by round(t0 * 100)."""
+    up, down = ratio(fs)
+    return int(math.floor(t0 * fs / down)) * up
+
+
 def stream_100hz(raw, derivs: list[Derivation], t0: float = 0.0, t1: float | None = None,
                  chunk_s: float = 600.0, pad_s: float = 10.0, progress=None) -> np.ndarray:
     """
@@ -73,7 +81,7 @@ def stream_100hz(raw, derivs: list[Derivation], t0: float = 0.0, t1: float | Non
     fs = float(raw.info["sfreq"])
     up, down = ratio(fs)
     n_total = int(raw.n_times)
-    s0 = int(math.floor(t0 * fs / down)) * down
+    s0 = int(math.floor(t0 * fs / down)) * down   # sample origin_100hz() refers to
     s1 = n_total if t1 is None else min(n_total, int(round(t1 * fs)))
     n_out = int(math.ceil((s1 - s0) * up / down))
     out = np.zeros((len(derivs), n_out), dtype=np.float32)

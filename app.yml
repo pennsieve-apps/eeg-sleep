@@ -22,9 +22,9 @@ application:
     - biomarkers
 runtime:
   # The staging channel is streamed at 100 Hz; spindles and slow waves run in 2-h windows of
-  # all EEG channels at 100 Hz, channels in parallel. Measured (amd64 emulated, 2 vCPU / 3 GiB):
-  # 13.5 h Siena recording 82 s wall, 117 CPU-s, RSS 1.0 GB, cgroup peak 1.9 GB with page cache;
-  # three 3-h 1024 Hz ds003555 nights 70 s. See README "Runtime".
+  # all EEG channels at 100 Hz, channels in parallel. Measured (amd64 emulated, 2 vCPU / 2 GiB):
+  # 41 Siena runs (128 h) 323 s wall, 464 CPU-s, RSS 1.2 GB; three 3-h 1024 Hz ds003555
+  # nights 70 s wall, RSS 1.05 GB (cgroup peaks 1.8-2.1 GB incl. page cache). README "Runtime".
   cpu: 2048
   memory: 4096
   computeTypes:

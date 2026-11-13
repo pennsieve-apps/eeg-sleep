@@ -11,8 +11,8 @@ run on **LightGBM** (Ke et al. 2017; Microsoft and the LightGBM developers). Sig
 packages these methods for clinical scalp EEG; it did not develop them.** The demo results below
 use EEG from **OpenNeuro ds003555** (Dorottya Cserpan, Johannes Sarnthein, Georgia Ramantani and
 colleagues, University Children's Hospital and University Hospital Zurich) and the **Siena Scalp
-EEG Database** (Paolo Detti and colleagues, University of Siena; BIDS conversion by Jonathan Dan
-and Paolo Detti, EPFL) and the **CHB-MIT Scalp EEG Database** (Ali Shoeb and John Guttag, MIT, with
+EEG Database** (Paolo Detti and colleagues, University of Siena; the BIDS conversion by Jonathan
+Dan and Paolo Detti is published by EPFL on Zenodo) and the **CHB-MIT Scalp EEG Database** (Ali Shoeb and John Guttag, MIT, with
 Children's Hospital Boston).
 
 A step of both scalp EEG workflows:
@@ -102,7 +102,8 @@ stage probabilities; clock time when the start time is known), `<id>_spectrogram
 channel, 0.5-25 Hz) and `<id>_density.png` (spindle and slow-wave density head maps; bipolar pairs
 at their midpoints).
 
-**`summary.json`**: headline numbers per recording (`TST_min`, `SE_pct`, `SOL_min`, `WASO_min`,
+**`summary.json`**: a `notice` that the report shows at the top of this step (EEG-only staging, not
+validated against expert scoring on these recordings, unreliable under 5 years); headline numbers per recording (`TST_min`, `SE_pct`, `SOL_min`, `WASO_min`,
 stage percentages, `confidence_mean_pct`, `confidence_ge80_pct`, `n_spindles`, `n_slow_waves`,
 `spindle_density_central`, `sw_density_frontal`, `nrem_minutes_analysed`), the figures in report
 order with captions, the tables, and warnings (low confidence, a non-mastoid staging derivation,
@@ -154,9 +155,9 @@ The order of the fallbacks is from data: on the three ds003555 nights (which hav
 alternative was staged and compared with staging on C4-A1 (Cohen's kappa per night): C4 in average
 reference 0.62 / 0.55 / 0.62; C4-O1 0.61 / 0.49 / 0.67; C4-Fp1 0.49 / 0.55 / 0.65; C3-A2 0.47 /
 0.15 / 0.63; Cz in average reference 0.56 / 0.27 / 0.45; bipolar F4-P4 0.58 / 0.43 / 0.46, C4-P4
-0.48 / 0.47 / 0.53, F4-C4 0.57 / 0.42 / 0.48. So the derivation matters a lot (even the two
-trained derivations C4-A1 and C3-A2 agree with kappa 0.15-0.63 in these children), and staging
-on anything other than C4-M1 / C3-M2 should be read as approximate; the app warns when it did.
+0.48 / 0.47 / 0.53, F4-C4 0.57 / 0.42 / 0.48. So the derivation matters a lot (even C4-A1 and its
+mirror C3-A2 agree with kappa 0.15-0.63 in these children), and staging on anything other than a
+central-mastoid or central-Fpz derivation should be read as approximate; the app warns when it did.
 
 ### Reported accuracy
 
@@ -165,7 +166,7 @@ median accuracy of **85.12 % (median Cohen's kappa 0.782) with a single EEG chan
 87.5 % for the full model with EEG, EOG, EMG, age and sex; epochs the classifier scored with
 ≥ 80 % confidence were 95.90 % accurate, those below 62.91 %. N1 is the weakest stage (sensitivity
 45.4 % for the full model), and the commonest errors were N1 scored as N2 and N3 scored as N2.
-Those figures are for polysomnography central-mastoid EEG of the training population (children
+Those figures are for the central EEG of polysomnography (C4-M1 or C4-Fpz) in the training population (children
 from 5 years, adolescents and adults, many with sleep apnoea); they are **not** validated for
 clinical EEG in epilepsy, in average reference, on bipolar pairs, in children under 5, during
 frequent epileptiform activity or under sedation. This app adds no validation of staging accuracy:
@@ -227,7 +228,8 @@ for naps in a monitoring unit or misclassified drowsy wake; review them against 
 
 **CHB-MIT chb01** (eeg-prep derivative of 42 one-hour files, bipolar-only, staged on F4-P4), in
 `data/work/chbmit/eeg-sleep/`: 39 staged, 3 shorter than an hour skipped, none failed; median
-mean confidence 64 %, median TST 26 min per hour. Each hour is staged on its own (YASA's
+mean confidence 64 %, median TST 26 min per hour; median 0.02 spindles and 6.9 slow waves per
+minute of N2+N3 on the pairs touching central and frontal electrodes. Each hour is staged on its own (YASA's
 smoothing and robust scaling see one hour, not the night), so treat these as rough.
 On the raw file chb01_03 the repeated `T8-P8` and reversed `P7-T7` channels are left out.
 
@@ -240,17 +242,20 @@ more than one per run) the platform runs it as an ECS task, not a Lambda step; t
 Lambda-safe all the same (read-only file system, any uid, caches under `$TMPDIR`; tested with
 `docker run --read-only --user 65534:65534`).
 
-Measured in Docker (linux/amd64 **emulated** on an M-series Mac), defaults, `--cpus 2 --memory 3g`:
+Measured in Docker (linux/amd64 **emulated** on an M-series Mac), defaults, `--cpus 2`, on the
+final eeg-prep outputs with `--memory 2g` while four other apps ran on the same Docker (these are
+the runs in `data/work/<demo>/eeg-sleep/`; wall time from the container, the app's own
+`wall_seconds` in `provenance.json` is ~2 s less):
 
 | Run | Recording time | Wall time | CPU time | Peak memory (cgroup `memory.peak`, includes the page cache of the files read) | Peak RSS |
 |---|---|---|---|---|---|
-| ds003555 eeg-prep derivative, 3 recordings, 1024 Hz, 23 channels | 9 h | 57 s | 74 s | 1.85 GB | 1.04 GB |
-| ds003555 raw BIDS, the same 3 recordings | 9 h | 55 s | 71 s | 1.84 GB | 1.04 GB |
-| Siena sub-01 run-00 (raw BIDS), 256 Hz, 19 channels | 13.5 h | 82 s | 117 s | 1.89 GB | 1.01 GB |
-| Synthetic fixture (`make run`), Lambda-style (`--read-only --user 65534`) | 2.2 h | 41 s | | | 0.69 GB |
-| Siena, all 41 eeg-prep runs (35 staged, 6 skipped), 256 Hz, 19 channels | 128 h | 407 s | 600 s | 2.26 GB | 1.19 GB |
-| The same, rerun with `--memory 2g` (four other apps running) | 128 h | 324 s | 478 s | 2.0 GiB (the limit: page cache) | 1.18 GB |
-| CHB-MIT chb01, 42 eeg-prep files, 256 Hz, bipolar, `--memory 2g` | 42 h | 120 s | 180 s | 1.83 GB | 0.80 GB |
+| ds003555, 3 recordings, 1024 Hz, 23 channels | 9 h | 70 s | 88 s | 1.81 GB | 1.05 GB |
+| Siena, 41 runs (35 staged, 6 skipped), 256 Hz, 19 channels | 128 h | 323 s | 464 s | 2.09 GB (near the 2 GiB limit: page cache) | 1.18 GB |
+| CHB-MIT chb01, 42 files (39 staged, 3 skipped), 256 Hz, bipolar | 42 h | 147 s | 205 s | 1.69 GB | 0.79 GB |
+
+Earlier, single-recording measurements with `--memory 3g` and nothing else running: Siena sub-01
+run-00 (13.5 h, raw BIDS) 82 s wall, 117 s CPU, 1.89 GB cgroup peak, 1.01 GB RSS; the synthetic
+fixture Lambda-style (`--read-only --user 65534`) 41 s, 0.69 GB RSS.
 
 About 10 s of every run is importing YASA and compiling AntroPy's numba functions under
 emulation. Time grows with recording length × channels × sampling rate (reading and resampling)

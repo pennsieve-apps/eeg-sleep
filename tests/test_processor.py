@@ -77,7 +77,7 @@ def test_tables_headers_provenance_and_summary(default_run):
     assert st[REC1] == "ok" and st[REC2] == "ok"
     assert st[REC3] == "skipped: 5.0 min < MIN_SLEEP_MINUTES 60"
     s = json.loads((default_run / "summary.json").read_text())
-    assert set(s) == {"app", "version", "recordings", "figures", "tables", "warnings"}
+    assert set(s) == {"app", "version", "notice", "recordings", "figures", "tables", "warnings"}
     assert set(s["recordings"]) == {REC1, REC2}
     assert isinstance(s["recordings"][REC1]["TST_min"], float) and s["recordings"][REC1]["epochs"] == 130
     kinds = [f["path"].rsplit("_", 1)[1] for f in s["figures"]]
@@ -85,6 +85,10 @@ def test_tables_headers_provenance_and_summary(default_run):
     for f in s["figures"]:
         assert (default_run / f["path"]).is_file() and len(f["caption"]) > 80
     assert any("bipolar-only" in w for w in s["warnings"])
+    assert "EEG only" in s["notice"] and "under 5" in s["notice"]
+    # bipolar pairs touching a central electrode count as central (review finding 1)
+    assert s["recordings"][REC2]["spindle_density_central"] is not None
+    assert s["recordings"][REC2]["sw_density_frontal"] is not None
 
 
 def test_hypnogram_contract(default_run, fixture_dir):
@@ -291,3 +295,41 @@ def test_candidates_order(fixture_dir):
         idx = {n: i for i, n in enumerate(raw.ch_names)}
         labels = [d.label for d in Z.staging_candidates(good, idx, E.montage_of(recs[rid], good))]
         assert labels[:len(first)] == first
+
+
+def test_frontal_central_keeps_bipolar_pairs_touching_those_regions():
+    rec = E.Recording("chb", Path("x.edf"), "x.edf", "scan")
+    names = [f"{a}-{b}" for a, b in make_fixture.BIPOLAR]
+    good = [c for c in E.channels(rec, names, ["eeg"] * len(names)) if c.status == "good"]
+    labels = {c.label for c in M.detection_channels(good, "frontal-central")}
+    assert {"C3-P3", "C4-P4", "F3-C3", "F4-C4", "Fz-Cz", "Cz-Pz", "Fp1-F7", "Fp1-F3"} <= labels
+    assert not labels & {"P3-O1", "P4-O2", "T7-P7", "P7-O1"}
+
+
+def test_highpass_from_sidecars_matches_filter_names_only(tmp_path):
+    rec = E.Recording("r", tmp_path / "r_eeg.edf", "r_eeg.edf", "scan", sidecar_json=tmp_path / "r_eeg.json")
+    side = {"SoftwareFilters": {"Bandpass": {"LowCutoff": 0.3, "HighCutoff": 30.0},
+                                "Lowpass": {"CutoffFrequency": 70}, "HighFrequencyNoise": {"cutoff": 40}}}
+    rec.sidecar_json.write_text(json.dumps(side))
+    assert E.highpass_hz(rec) == (0.3, "SoftwareFilters/Bandpass/LowCutoff")
+    side = {"SoftwareFilters": {"high-pass filter": {"half-amplitude cutoff (Hz)": 1.591549},
+                                "low-pass filter": {"half-amplitude cutoff (Hz)": 30}},
+            "HardwareFilters": {"HighpassFilter": {"CutoffFrequency": 0.1}}}
+    rec.sidecar_json.write_text(json.dumps(side))
+    assert E.highpass_hz(rec)[0] == pytest.approx(1.591549)
+    rec.sidecar_json.write_text(json.dumps({"SoftwareFilters": "n/a"}))
+    assert E.highpass_hz(rec) == (None, "")
+
+
+def test_window_origin_matches_the_whole_recording_grid(fixture_dir):
+    """A window read from t0 must sit on the same 100 Hz grid as the recording read from 0."""
+    rec = [r for r in E.find_recordings(fixture_dir / "eeg")[0] if r.recording_id == REC1][0]
+    raw = E.open_raw(rec.path)
+    d = Z.Derivation("C4", [(raw.ch_names.index("C4"), 1.0)], "")
+    whole = Z.stream_100hz(raw, [d], 0, 1200)[0]
+    for t0 in (300.13, 611.7):
+        i0 = Z.origin_100hz(256.0, t0)
+        part = Z.stream_100hz(raw, [d], t0, 1200)[0]
+        assert abs(i0 - t0 * 100) <= 25
+        inner = slice(500, len(part) - 500)
+        assert np.max(np.abs(part[inner] - whole[i0:i0 + len(part)][inner])) < 0.01 * np.std(whole)

@@ -165,6 +165,12 @@ def region(contacts: tuple[str, ...]) -> str:
     return regs[0] if len(set(regs)) == 1 else "+".join(dict.fromkeys(regs))
 
 
+def in_region(contacts: tuple[str, ...], regions) -> bool:
+    """True when the channel touches one of `regions`: a bipolar pair's region is `frontal+central`
+    for F4-C4, so F4-C4 counts as frontal and as central, C4-P4 as central and parietal."""
+    return bool(set(region(contacts).split("+")) & set(regions))
+
+
 # --- recordings -------------------------------------------------------------------
 
 @dataclass
@@ -435,28 +441,46 @@ def sidecar_line_freq(rec: Recording) -> float | None:
         return None
 
 
+HIGHPASS_NAME = re.compile(r"^high[-_ ]?pass(?:[-_ ]?filter)?$", re.IGNORECASE)
+BANDPASS_NAME = re.compile(r"^band[-_ ]?pass(?:[-_ ]?filter)?$", re.IGNORECASE)
+CUTOFF_KEY = re.compile(r"^(?:cutoff[-_ ]?frequency|half[-_ ]amplitude cutoff(?: \(hz\))?|cutoff(?: \(hz\))?|frequency)$",
+                        re.IGNORECASE)
+BAND_LOW_KEY = re.compile(r"^(?:low[-_ ]?cutoff(?:[-_ ]?frequency)?|lower[-_ ]?cutoff)(?: \(hz\))?$", re.IGNORECASE)
+
+
 def highpass_hz(rec: Recording) -> tuple[float | None, str]:
     """
-    The highest high-pass cutoff the recording's metadata reports (BIDS sidecar `SoftwareFilters`,
-    `SourceSoftwareFilters` and `HardwareFilters` entries whose name says high-pass, and the
-    `low_cutoff` column of `_channels.tsv`), and where it was found. Slow waves are 0.3-1.5 Hz.
+    The highest high-pass cutoff the recording's metadata reports, and where it was found:
+    in the BIDS sidecar's `SoftwareFilters`, `SourceSoftwareFilters` and `HardwareFilters`, a filter
+    named high-pass (`Highpass`, `high-pass filter`, `HighpassFilter`, ...) with a cutoff key
+    (`CutoffFrequency`, `half-amplitude cutoff (Hz)`, ...), or a band-pass filter's low cutoff;
+    and the `low_cutoff` column of `_channels.tsv`. Low-pass cutoffs (a band-pass `HighCutoff`)
+    never count. Slow waves are 0.3-1.5 Hz.
     """
     found: list[tuple[float, str]] = []
 
-    def walk(obj, path):
-        if isinstance(obj, dict):
-            for k, v in obj.items():
-                walk(v, f"{path}/{k}")
-        elif "high" in path.lower() and "cutoff" in path.lower() or path.lower().endswith(("highpass", "high-pass")):
-            v = _float(obj)
-            if v is not None and v > 0:
-                found.append((v, path.strip("/")))
+    def filters(group, where):
+        if not isinstance(group, dict):
+            return
+        for name, spec in group.items():
+            if not isinstance(spec, dict):
+                continue
+            if HIGHPASS_NAME.match(name.strip()):
+                keys = CUTOFF_KEY
+            elif BANDPASS_NAME.match(name.strip()):
+                keys = BAND_LOW_KEY
+            else:
+                continue
+            for k, v in spec.items():
+                f = _float(v)
+                if keys.match(k.strip()) and f is not None and f > 0:
+                    found.append((f, f"{where}/{name}/{k}"))
 
     if rec.sidecar_json is not None:
         try:
             j = json.loads(rec.sidecar_json.read_text())
             for key in ("SoftwareFilters", "SourceSoftwareFilters", "HardwareFilters"):
-                walk(j.get(key), key)
+                filters(j.get(key), key)
         except (OSError, ValueError):
             pass
     if rec.channels_tsv is not None:
