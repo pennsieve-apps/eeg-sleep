@@ -87,7 +87,7 @@ from processor import eeg as E  # noqa: E402
 from processor import figures as F  # noqa: E402
 from processor import sleep as Z  # noqa: E402
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", stream=sys.stdout)
 log = logging.getLogger("eeg-sleep")
 log.setLevel(logging.INFO)
 for noisy in ("mne", "numba", "joblib", "yasa", "matplotlib", "lightgbm"):
@@ -501,7 +501,7 @@ def main() -> int:
     input_dir, output_dir = Path(input_dir), Path(output_dir)
     if not input_dir.is_dir():
         log.error("INPUT_DIR %s is not a folder", input_dir)
-        return 2
+        return 1
     try:
         params = env_params()
     except ValueError as exc:
@@ -573,7 +573,7 @@ def main() -> int:
                                  f"derivation; YASA's accuracy is reported for C4-M1-like channels")
             if s["montage"] == "bipolar-longitudinal":
                 warnings_.append(f"{rec.recording_id}: bipolar-only recording, staged on {s['staging_channel']}; "
-                                 f"YASA was trained on central-mastoid derivations")
+                                 f"YASA was trained on referential central derivations (C4-M1, C4-Fpz)")
             log.info("%s: %d channels (%d good), %.0f Hz, %s, %.2f h, %d epochs staged on %s (TST %s min, SE %s%%, "
                      "mean confidence %s%%), %d spindles and %d slow waves on %d channels over %s min of N2+N3; "
                      "%.1f s (staging %.1f s, detection %.1f s)", rec.recording_id, s["n_channels"], s["n_good"],

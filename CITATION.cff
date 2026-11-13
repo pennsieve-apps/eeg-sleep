@@ -533,6 +533,24 @@ references:
   volume: '8'
   issue: '7'
   start: '846'
+- type: data
+  title: CHB-MIT Scalp EEG Database
+  authors:
+  - family-names: Shoeb
+    given-names: Ali
+  year: 2010
+  publisher:
+    name: PhysioNet
+  doi: 10.13026/C2K01R
+- type: thesis
+  title: Application of machine learning to epileptic seizure onset detection and treatment
+  authors:
+  - family-names: Shoeb
+    given-names: Ali Hossam
+  year: 2009
+  institution:
+    name: Massachusetts Institute of Technology
+  url: https://dspace.mit.edu/handle/1721.1/54669
 - type: article
   title: PhysioBank, PhysioToolkit, and PhysioNet
   authors:

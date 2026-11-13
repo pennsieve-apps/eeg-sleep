@@ -12,7 +12,8 @@ packages these methods for clinical scalp EEG; it did not develop them.** The de
 use EEG from **OpenNeuro ds003555** (Dorottya Cserpan, Johannes Sarnthein, Georgia Ramantani and
 colleagues, University Children's Hospital and University Hospital Zurich) and the **Siena Scalp
 EEG Database** (Paolo Detti and colleagues, University of Siena; BIDS conversion by Jonathan Dan
-and Paolo Detti, EPFL).
+and Paolo Detti, EPFL) and the **CHB-MIT Scalp EEG Database** (Ali Shoeb and John Guttag, MIT, with
+Children's Hospital Boston).
 
 A step of both scalp EEG workflows:
 
@@ -137,8 +138,9 @@ time left out and why, lights, high-pass, notes.
 
 ### Staging channel
 
-YASA's classifiers were trained on a central electrode referred to the contralateral mastoid
-(C4-M1 or C3-M2; two training cohorts used C3/C4-Fpz). `STAGING_CHANNEL=auto` picks, in order:
+YASA's classifiers were trained on one central EEG derivation, "C4-M1 or C4-Fpz depending on the
+dataset" (Vallat & Walker 2021): the SHHS and MESA recordings have mastoid-referred central leads,
+the CCSHS, CFS, CHAT, HomePAP and MrOS recordings C3/C4-Fpz. `STAGING_CHANNEL=auto` picks, in order:
 
 1. **Referential recordings**: `C4-M1` (or `C4-A1`), then `C3-M2` (`C3-A2`), computed as the
    difference of the two electrodes, which is exact whatever the recording's reference (also in
@@ -284,7 +286,7 @@ a few minutes on 2 vCPU and stay under 4 GiB (not measured). The image is ~243 M
 The app is Apache-2.0. YASA, AntroPy, MNE-Python, SciPy, scikit-learn: BSD-3-Clause; LightGBM: MIT.
 YASA's classifiers ship inside its BSD-3-Clause wheel with no separate weights licence or gate.
 Every bundled component and its licence: `THIRD_PARTY.md`. Demo data: ds003555 CC0; Siena
-CC BY 4.0 (the BIDS conversion's `dataset_description.json` says ODC-By 1.0).
+CC BY 4.0 (the BIDS conversion's `dataset_description.json` says ODC-By 1.0); CHB-MIT ODC-By 1.0.
 
 ## Citations
 
@@ -322,6 +324,9 @@ Demo data:
   Noninvasive Recordings. *Processes* 2020;8(7):846. doi:10.3390/pr8070846. Goldberger AL, et al.
   PhysioBank, PhysioToolkit, and PhysioNet. *Circulation* 2000;101(23).
   doi:10.1161/01.CIR.101.23.e215. PMID 10851218.
+- Shoeb A. CHB-MIT Scalp EEG Database. PhysioNet (2010). doi:10.13026/C2K01R; Shoeb AH.
+  Application of machine learning to epileptic seizure onset detection and treatment. PhD thesis,
+  MIT (2009). https://dspace.mit.edu/handle/1721.1/54669.
 
 ## Acknowledgements
 

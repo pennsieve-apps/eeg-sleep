@@ -49,3 +49,4 @@ asks users of its default classifiers to cite the two NSRR papers (Dean et al. 2
   doi:10.18112/openneuro.ds003555.v1.0.1), CC0.
 - BIDS Siena Scalp EEG Database (Dan J, Detti P; Zenodo doi:10.5281/zenodo.10640762), from the
   Siena Scalp EEG Database (Detti P; PhysioNet doi:10.13026/5d4a-j060), CC BY 4.0.
+- CHB-MIT Scalp EEG Database, subject chb01 (Shoeb A; PhysioNet doi:10.13026/C2K01R), ODC-By 1.0.
