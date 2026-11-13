@@ -185,7 +185,7 @@ eeg-prep), in `data/work/ds003555/eeg-sleep/`:
 
 | Recording | Age | TST (min) | SE (%) | N2 / N3 / REM (% TST) | Mean confidence (%) | Epochs ≥ 0.8 (%) | Spindles /min N2+N3, C3/C4/Cz | Slow waves /min N2+N3, frontal |
 |---|---|---|---|---|---|---|---|---|
-| sub-01 | 5.6 y | 167.0 | 92.8 | 40.4 / 42.8 / 15.6 | 62.3 | 18.9 | 0.04 / 0.19 / 0.13 | 26.2 |
+| sub-01 | 5.6 y | 167.0 | 92.8 | 40.4 / 42.8 / 15.6 | 62.3 | 18.9 | 0.04 / 0.19 / 0.12 | 26.3 |
 | sub-02 | 1.6 y | 46.0 | 25.6 | 56.5 / 0 / 37.0 | 56.7 | 8.1 | 0.66 / 0.27 / 0.97 | 2.1 |
 | sub-03 | 4.8 y | 141.0 | 78.3 | 14.5 / 59.9 / 12.4 | 71.7 | 42.5 | 0 / 0 / 0 | 32.9 |
 
@@ -210,8 +210,8 @@ failed. Mean staging confidence per run: median 69 % (55-82 %). The three whole 
 | Recording | Hours | TST (min) | SE (%) | N2 / N3 / REM (% TST) | Mean confidence (%) | Spindles /min N2+N3, central | Slow waves /min N2+N3, frontal |
 |---|---|---|---|---|---|---|---|
 | sub-01 run-00 | 13.5 | 376.0 | 46.5 | 52.8 / 15.2 / 15.2 | 76.1 | 0.63 | 0.01 |
-| sub-03 run-00 | 13.0 | 381.0 | 49.0 | 67.5 / 5.1 / 14.0 | 81.7 | 0.43 | 0.40 |
-| sub-14 run-02 | 11.7 | 313.0 | 44.7 | 83.9 / 0 / 12.5 | 78.0 | 6.29 | 0.02 |
+| sub-03 run-00 | 13.0 | 381.0 | 49.0 | 67.5 / 5.1 / 14.0 | 81.7 | 0.41 | 0.64 |
+| sub-14 run-02 | 11.7 | 313.0 | 44.7 | 83.9 / 0 / 12.5 | 78.0 | 6.26 | 0.02 |
 
 The nights have a plausible shape (wake in the evening, sleep from around 23:00-00:00, NREM-REM
 cycles, waking in the morning; SE is low because the recordings start hours before sleep and there
@@ -223,8 +223,11 @@ derivation matters: on PN06's run-01 (raw BIDS), TST was 88 min on C4, 66 min on
 C4-O1. Shorter daytime runs give low TST with mostly N2 and REM at lower confidence, as expected
 for naps in a monitoring unit or misclassified drowsy wake; review them against the EEG.
 
-**CHB-MIT** chb01_03 (one hour, bipolar-only, staged on F4-P4): 120 epochs, TST 51 min, mean
-confidence 75.5 %; the repeated `T8-P8` and reversed `P7-T7` channels are left out.
+**CHB-MIT chb01** (eeg-prep derivative of 42 one-hour files, bipolar-only, staged on F4-P4), in
+`data/work/chbmit/eeg-sleep/`: 39 staged, 3 shorter than an hour skipped, none failed; median
+mean confidence 64 %, median TST 26 min per hour. Each hour is staged on its own (YASA's
+smoothing and robust scaling see one hour, not the night), so treat these as rough.
+On the raw file chb01_03 the repeated `T8-P8` and reversed `P7-T7` channels are left out.
 
 ## Runtime
 
@@ -244,6 +247,8 @@ Measured in Docker (linux/amd64 **emulated** on an M-series Mac), defaults, `--c
 | Siena sub-01 run-00 (raw BIDS), 256 Hz, 19 channels | 13.5 h | 82 s | 117 s | 1.89 GB | 1.01 GB |
 | Synthetic fixture (`make run`), Lambda-style (`--read-only --user 65534`) | 2.2 h | 41 s | | | 0.69 GB |
 | Siena, all 41 eeg-prep runs (35 staged, 6 skipped), 256 Hz, 19 channels | 128 h | 407 s | 600 s | 2.26 GB | 1.19 GB |
+| The same, rerun with `--memory 2g` (four other apps running) | 128 h | 324 s | 478 s | 2.0 GiB (the limit: page cache) | 1.18 GB |
+| CHB-MIT chb01, 42 eeg-prep files, 256 Hz, bipolar, `--memory 2g` | 42 h | 120 s | 180 s | 1.83 GB | 0.80 GB |
 
 About 10 s of every run is importing YASA and compiling AntroPy's numba functions under
 emulation. Time grows with recording length × channels × sampling rate (reading and resampling)
